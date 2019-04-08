@@ -1,0 +1,31 @@
+# Documentation: http://docs.travis-ci.com/user/languages/julia/
+language: julia
+sudo: required
+os:
+  - linux
+julia:
+  - 0.6
+  - 0.7
+  - 1.0
+matrix:
+    allow_failures:
+        - julia: 0.7
+        - julia: 1.0
+notifications:
+  email: false
+addons:
+      apt_packages:
+        - gfortran
+        - liblapack-dev
+        - libblas-dev
+install:
+  - sudo pip install matplotlib
+
+script:
+  - if [[ -a .git/shallow ]]; then git fetch --unshallow; fi
+  - julia -e 'Pkg.clone(pwd())'
+  - julia -e 'Pkg.test("NLOptControl")'
+#  - julia -e 'run(`lualatex -v`)'
+  - julia -e 'Pkg.checkout("NLOptControl.jl")'
+  - julia -e 'Pkg.add("Documenter");'
+  - julia -e 'cd(Pkg.dir("NLOptControl"));ENV["DOCUMENTER_DEBUG"]=true; include(joinpath("docs", "make.jl"))'
